@@ -31,3 +31,10 @@ go.work.sum
 # Editor/IDE
 # .idea/
 .vscode/
+
+# Virtual environment
+.venv/
+
+# Python
+__pycache__/
+.pytest_cache/
