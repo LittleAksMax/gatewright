@@ -4,15 +4,19 @@ name: Lint, Test
 on:
   push:
   pull_request:
-  workflow_dispatch:  # manual runs
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: # manual runs
+
+permissions:
+  contents: read
 
 jobs:
-  lint-and-unit-tests:
+  lint-and-tests:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-  
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -25,6 +29,10 @@ jobs:
           version: v2.13.2
 
       - name: Unit tests
-        run: go test ./...
-      - name: Unit tests
         run: make test
+  component-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Spec tests
+        run: make comptest

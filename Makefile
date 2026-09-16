@@ -1,8 +1,13 @@
 LINT_CFG=.golangci.yml
 TARGET=gwt
+TARGETARCH ?= $(shell go env GOARCH)
 
 TARGET:
-	go build -o $(TARGET)
+	GOARCH=$(TARGETARCH) go build -o $(TARGET)
+
+.PHONY: build
+build:
+	GOARCH=$(TARGETARCH) go build -o $(TARGET)
 
 lint:
 	@if command -v golangci-lint >/dev/null 2>&1; then \
@@ -19,5 +24,6 @@ docker_build:
 test:
 	go test $$(go list ./... | grep -v '/spec_tests')
 
+.PHONY: comptest
 comptest:
-	@echo "Component testing"
+	docker compose run --rm test pytest -q /spec_tests
