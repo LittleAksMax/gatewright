@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var gwt = &cobra.Command{
+var gwtCmd = &cobra.Command{
 	Use:           "gwt",
 	SilenceErrors: true,
 	Short:         "Simple tool for quickstarting simple projects.",
@@ -19,11 +19,12 @@ var gwt = &cobra.Command{
 }
 
 func Execute() {
-	if err := gwt.Execute(); err != nil {
+	if err := gwtCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
 func init() {
+	gwtCmd.AddCommand(initCmd)
 }
