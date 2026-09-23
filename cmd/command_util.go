@@ -15,7 +15,7 @@ func requireLinkedAWSAndGithub(cfg *config.Config) CommandRunEFunc {
 			return errors.New("aws not linked, use `gwt link aws` to link")
 		}
 		if cfg.IsGHLinked() {
-			return errors.New("Github not linked, use `gwt link gh` to link")
+			return errors.New("github not linked, use `gwt link gh` to link")
 		}
 		return nil
 	}
