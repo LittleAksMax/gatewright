@@ -33,7 +33,7 @@ linters:
       - third_party$
       - builtin\.go$
       - examples$
-      - spec_tests$
+      - comp_tests$
 
 formatters:
   enable:
@@ -47,7 +47,7 @@ formatters:
       - third_party$
       - builtin\.go$
       - examples$
-      - spec_tests$
+      - comp_tests$
 
 issues:
   max-issues-per-linter: 0
