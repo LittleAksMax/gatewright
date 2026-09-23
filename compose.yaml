@@ -5,4 +5,7 @@ services:
       target: spec-tests
       args:
         TARGETARCH: ${TARGETARCH:-amd64}
-    command: pytest -q /spec_tests
+    environment:
+      # avoid running component test on dev machine
+      GATEWRIGHT_COMP_TESTS: "docker"
+    command: pytest -q -p no:cacheprovider /comp_tests
