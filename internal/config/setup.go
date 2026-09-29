@@ -2,6 +2,10 @@ package config
 
 func CreateConfig() *Config {
 	return &Config{
-		// TODO: read relevant
+		awsCfg: nil,
+		ghCfg: &GithubConfig{
+			ClientID: "Iv23liMjsglWwuqqgwdZ",
+			Auth:     nil, // TODO: read properly
+		},
 	}
 }

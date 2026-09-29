@@ -13,6 +13,11 @@ func createCommand(cfg *config.Config) *cobra.Command {
 		SilenceErrors: true,
 		Short:         "Simple tool for quickstarting simple projects.",
 		Long:          "Gatewright bootstraps and creates CI for new monorepo projects that deploy as a single Docker container using GH Actions, ECR, and EC2 via SSM.",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if cmd != cmd.Root() {
+				cmd.SilenceUsage = true
+			}
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return errors.New("a subcommand is required")
 		},

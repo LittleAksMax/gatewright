@@ -13,7 +13,6 @@ COPY main.go main.go
 COPY Makefile Makefile
 RUN make build TARGETARCH=${TARGETARCH}
 
-
 FROM python:3.14-slim-bookworm AS spec-tests
 
 RUN apt-get update \

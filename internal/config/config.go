@@ -12,3 +12,7 @@ func (c *Config) IsAWSLinked() bool {
 func (c *Config) IsGHLinked() bool {
 	return c.ghCfg != nil
 }
+
+func (c *Config) GetClientID() string {
+	return c.ghCfg.ClientID
+}
