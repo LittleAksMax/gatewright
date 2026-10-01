@@ -14,7 +14,7 @@ func RequireAWSAndGithub(cfg *Config, runFunc CommandRunEFunc) CommandRunEFunc {
 
 func RequireAWS(cfg *Config, runFunc CommandRunEFunc) CommandRunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		if !cfg.IsAWSLinked() {
+		if !cfg.AWSCfg.IsLinked() {
 			return errors.New("must link AWS with `gwt link aws`")
 		}
 		return runFunc(cmd, args)
@@ -23,7 +23,7 @@ func RequireAWS(cfg *Config, runFunc CommandRunEFunc) CommandRunEFunc {
 
 func RequireGithub(cfg *Config, runFunc CommandRunEFunc) CommandRunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		if !cfg.IsGHLinked() {
+		if !cfg.GithubCfg.IsLinked() {
 			return errors.New("must link Github with `gwt link gh`")
 		}
 		return runFunc(cmd, args)

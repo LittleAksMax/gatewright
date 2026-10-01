@@ -46,7 +46,7 @@ func newLinkCommand(cfg *config.Config) *cobra.Command {
 }
 
 func handleGithubLinkFlow(parent context.Context, cfg *config.Config) error {
-	deviceAuth, err := requests.PostGithubDeviceCode(parent, cfg.GetClientID())
+	deviceAuth, err := requests.PostGithubDeviceCode(parent, cfg.GithubCfg.GetClientID())
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func handleGithubLinkFlow(parent context.Context, cfg *config.Config) error {
 		}
 
 		var err error
-		token, err = requests.PostGithubPollAccessToken(ctx, cfg.GetClientID(), deviceAuth.DeviceCode)
+		token, err = requests.PostGithubPollAccessToken(ctx, cfg.GithubCfg.GetClientID(), deviceAuth.DeviceCode)
 		if err == nil {
 			break
 		}
@@ -93,8 +93,16 @@ func handleGithubLinkFlow(parent context.Context, cfg *config.Config) error {
 		timer.Reset(interval)
 	}
 
-	// Use token.AccessToken for the next operation.
-	_ = token
+	// Store the credentials
+	cfg.GithubCfg.Auth = &config.GithubAuthConfig{
+		AccessToken:           token.AccessToken,
+		RefreshToken:          token.RefreshToken,
+		AccessTokenExpiresAt:  time.Now().Add(time.Second * time.Duration(token.AccessTokenExpiresIn)),
+		RefreshTokenExpiresAt: time.Now().Add(time.Second * time.Duration(token.RefreshTokenExpiresIn)),
+	}
+	if err := cfg.GithubCfg.Auth.Commit(); err != nil {
+		return err
+	}
 
 	return nil
 }
