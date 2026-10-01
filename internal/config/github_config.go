@@ -15,7 +15,7 @@ type GithubAuthConfig struct {
 }
 
 type GithubConfig struct {
-	Auth     *GithubAuthConfig // TODO: fetch from config files
+	Auth     *GithubAuthConfig
 	clientID string
 }
 
@@ -27,11 +27,27 @@ func (g *GithubConfig) GetClientID() string {
 	return g.clientID
 }
 
-func Read() (GithubConfig, error) {
-	return GithubConfig{}, nil
+func readGithubAuthConfigFromPersistent() *GithubAuthConfig {
+	path, err := configPath("github")
+	if err != nil {
+		return nil
+	}
+
+	// Check if file exists
+	if _, err := os.Stat(path); err != nil {
+		// Only return error if error is different from file not existing
+		return nil
+	}
+
+	// Ensure no nil-dereference
+	gAuthToRead := GithubAuthConfig{}
+	if err := readFile(path, &gAuthToRead); err != nil {
+		return nil
+	}
+	return &gAuthToRead
 }
 
-func (gAuth *GithubAuthConfig) Commit() error {
+func (gAuth *GithubAuthConfig) CommitToPersistent() error {
 	path, err := configPath("github")
 	if err != nil {
 		return err

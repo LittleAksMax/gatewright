@@ -11,7 +11,7 @@ import (
 
 func marshalConfig(v interface{}) ([]byte, error) {
 	rv := reflect.ValueOf(v)
-	if rv.Kind() == reflect.Ptr {
+	if rv.Kind() == reflect.Pointer {
 		rv = rv.Elem()
 	}
 	if rv.Kind() != reflect.Struct {
@@ -45,7 +45,7 @@ func marshalConfig(v interface{}) ([]byte, error) {
 
 func unmarshalConfig(data []byte, v interface{}) error {
 	rv := reflect.ValueOf(v)
-	if rv.Kind() != reflect.Ptr || rv.Elem().Kind() != reflect.Struct {
+	if rv.Kind() != reflect.Pointer || rv.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("cfg: Unmarshal requires a pointer to struct")
 	}
 	rv = rv.Elem()

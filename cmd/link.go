@@ -100,7 +100,7 @@ func handleGithubLinkFlow(parent context.Context, cfg *config.Config) error {
 		AccessTokenExpiresAt:  time.Now().Add(time.Second * time.Duration(token.AccessTokenExpiresIn)),
 		RefreshTokenExpiresAt: time.Now().Add(time.Second * time.Duration(token.RefreshTokenExpiresIn)),
 	}
-	if err := cfg.GithubCfg.Auth.Commit(); err != nil {
+	if err := cfg.GithubCfg.Auth.CommitToPersistent(); err != nil {
 		return err
 	}
 
