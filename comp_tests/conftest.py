@@ -2,7 +2,6 @@ import datetime
 import os
 from collections.abc import Generator
 from dataclasses import dataclass
-from io import TextIOWrapper
 from pathlib import Path
 from shutil import rmtree
 from types import TracebackType
@@ -23,8 +22,8 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 @dataclass
-class AWSConfig:
-    def write(self, file: TextIOWrapper) -> None:
+class AwsConfig:
+    def write(self, path: Path) -> None:
         raise NotImplementedError
 
 
@@ -35,42 +34,33 @@ class GithubConfig:
     refresh_token: str
     refresh_token_expires_at: datetime.datetime
 
-    def write(self, file: TextIOWrapper) -> None:
-        file.writelines(
-            [
-                f"accessToken={self.access_token}",
-                f"accessTokenExpiresAt={self.access_token_expires_at.strftime(DATE_FORMAT)}",
-                f"refreshToken={self.refresh_token}",
-                f"refreshTokenExpiresAt={self.refresh_token_expires_at.strftime(DATE_FORMAT)}",
-            ]
+    def write(self, path: Path) -> None:
+        path.write_text(
+            f"accessToken={self.access_token}\n"
+            f"accessTokenExpiresAt={self.access_token_expires_at.strftime(DATE_FORMAT)}\n"
+            f"refreshToken={self.refresh_token}\n"
+            f"refreshTokenExpiresAt={self.refresh_token_expires_at.strftime(DATE_FORMAT)}\n"
         )
 
 
 @dataclass
 class Config:
-    aws: AWSConfig | None
-    gh: GithubConfig | None
+    aws: AwsConfig | None
+    github: GithubConfig | None
 
 
 class ConfigFileManager:
     def __init__(self, config: Config) -> None:
         self._config = config
+        self._root = Path.home() / ".gatewright"
 
     def __enter__(self) -> Self:
-        config_root = Path.home() / Path(".gatewright")
-        config_root.mkdir(mode=0o600)
-
-        if self._config.gh is not None:
-            github_file = config_root / "github"
-            github_file.touch(mode=0o600, exist_ok=False)
-            with open(github_file, "w") as f:
-                self._config.gh.write(f)
-
+        rmtree(self._root, ignore_errors=True)
+        self._root.mkdir(mode=0o700)
+        if self._config.github is not None:
+            self._config.github.write(self._root / "github")
         if self._config.aws is not None:
-            aws_file = config_root / "aws"
-            aws_file.touch(mode=0o600, exist_ok=False)
-            with open(aws_file, "w") as f:
-                self._config.aws.write(f)
+            self._config.aws.write(self._root / "aws")
         return self
 
     def __exit__(
@@ -79,22 +69,31 @@ class ConfigFileManager:
         _exc_value: BaseException | None,
         _exc_traceback: TracebackType | None,
     ) -> None:
-        config_dir = Path("~/.gatewright").expanduser()
-        rmtree(config_dir, ignore_errors=True)
+        rmtree(self._root, ignore_errors=True)
 
 
 @pytest.fixture
-def empty_config() -> Generator[Config]:
-    config = Config(aws=None, gh=None)
+def github_config_fixture(request: pytest.FixtureRequest) -> GithubConfig | None:
+    return getattr(request, "param", None)
+
+
+@pytest.fixture
+def aws_config_fixture(request: pytest.FixtureRequest) -> AwsConfig | None:
+    return getattr(request, "param", None)
+
+
+def with_github_config(github_config: GithubConfig):
+    return pytest.mark.parametrize(github_config_fixture.__name__, (github_config,), indirect=True)
+
+
+def with_aws_config(aws_config: AwsConfig):
+    return pytest.mark.parametrize(aws_config_fixture.__name__, (aws_config,), indirect=True)
+
+
+@pytest.fixture
+def config_fixture(
+    github_config_fixture: GithubConfig | None, aws_config_fixture: AwsConfig | None
+) -> Generator[Config]:
+    config = Config(github=github_config_fixture, aws=aws_config_fixture)
     with ConfigFileManager(config):
         yield config
-
-
-@pytest.fixture
-def github_config_context(request):
-    return getattr(request, "gh", None)
-
-
-@pytest.fixture
-def aws_config_context(request):
-    return getattr(request, "aws", None)
