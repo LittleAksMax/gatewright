@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.27-bookworm as builder
+FROM --platform=$BUILDPLATFORM golang:1.27-bookworm AS builder
 
 ARG TARGETARCH
 
@@ -7,11 +7,11 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY cmd/ cmd/
+COPY internal/ internal/
 COPY main.go main.go
 
 COPY Makefile Makefile
 RUN make build TARGETARCH=${TARGETARCH}
-
 
 FROM python:3.14-slim-bookworm AS spec-tests
 
@@ -23,10 +23,10 @@ RUN apt-get update \
     && chmod 0440 /etc/sudoers.d/tester
 
 COPY --from=builder /app/gwt /usr/local/bin/gwt
-COPY spec_tests/requirements.txt /tmp/requirements.txt
+COPY comp_tests/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-COPY spec_tests/ /spec_tests/
+COPY --chown=tester:tester comp_tests/ /comp_tests/
 
 USER tester
-WORKDIR /spec_tests
+WORKDIR /comp_tests

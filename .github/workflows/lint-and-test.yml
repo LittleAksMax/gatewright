@@ -13,26 +13,40 @@ permissions:
 jobs:
   lint-and-tests:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
           cache: true
-
       - name: Golangci-lint
         uses: golangci/golangci-lint-action@v9.3.0
         with:
           version: v2.13.2
-
       - name: Unit tests
         run: make test
+
   component-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: comp_tests
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          src: "comp_tests"
+          args: "check ."
+      - uses: astral-sh/ruff-action@v3
+        with:
+          src: "comp_tests"
+          args: "format --check ."
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
       - name: Spec tests
-        run: make comptest
+        run: make -C .. comptest

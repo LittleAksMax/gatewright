@@ -38,3 +38,7 @@ go.work.sum
 # Python
 __pycache__/
 .pytest_cache/
+.ruff_cache/
+
+# Component test reports
+comp_results/
