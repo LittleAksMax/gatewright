@@ -4,7 +4,10 @@ target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]  # pyflakes, pycodestyle, isort, pyupgrade, bugbear
-ignore = []
+ignore = ["F401", "F811"]
 
 [tool.ruff.format]
 quote-style = "double"
+
+[tool.pytest.ini_options]
+junit_logging = "all"  # include captured stdout/stderr in the JUnit report

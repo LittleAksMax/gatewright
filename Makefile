@@ -43,7 +43,8 @@ test:
 
 .PHONY: comptest
 comptest:
-	$(DOCKER_COMPOSE) run --rm --build --remove-orphans test pytest -q /comp_tests
+	mkdir -p comp_results
+	$(DOCKER_COMPOSE) run --rm --build --remove-orphans test pytest -q --junitxml=/results/report.xml /comp_tests $(PYTEST_ARGS)
 
 .PHONY: clean
 clean:
