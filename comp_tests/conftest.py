@@ -18,12 +18,15 @@ def pytest_sessionstart(session: pytest.Session) -> None:
             returncode=2,
         )
 
+
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 
 @dataclass
 class AWSConfig:
     def write(self, file: TextIOWrapper) -> None:
         raise NotImplementedError
+
 
 @dataclass
 class GithubConfig:
@@ -33,17 +36,21 @@ class GithubConfig:
     refresh_token_expires_at: datetime.datetime
 
     def write(self, file: TextIOWrapper) -> None:
-        file.writelines([
-            f"accessToken={self.access_token}",
-            f"accessTokenExpiresAt={self.access_token_expires_at.strftime(DATE_FORMAT)}",
-            f"refreshToken={self.refresh_token}",
-            f"refreshTokenExpiresAt={self.refresh_token_expires_at.strftime(DATE_FORMAT)}",
-        ])
+        file.writelines(
+            [
+                f"accessToken={self.access_token}",
+                f"accessTokenExpiresAt={self.access_token_expires_at.strftime(DATE_FORMAT)}",
+                f"refreshToken={self.refresh_token}",
+                f"refreshTokenExpiresAt={self.refresh_token_expires_at.strftime(DATE_FORMAT)}",
+            ]
+        )
+
 
 @dataclass
 class Config:
     aws: AWSConfig | None
     gh: GithubConfig | None
+
 
 class ConfigFileManager:
     def __init__(self, config: Config) -> None:
