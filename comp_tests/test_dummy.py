@@ -1,4 +1,3 @@
-import conftest
 
 
 class TestDummy:

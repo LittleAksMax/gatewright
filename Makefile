@@ -16,9 +16,17 @@ build:
 .PHONY: lint
 lint:
 	@if command -v golangci-lint >/dev/null 2>&1; then \
+		echo "Linting Go"; \
 		golangci-lint run; \
 	else \
 		echo "golangci-lint is not installed or not on PATH"; \
+		exit 1; \
+	fi
+	@if command -v ruff >/dev/null 2>&1; then \
+		echo "Linting Python"; \
+		ruff check; \
+	else \
+		echo "ruff is not installed or not on PATH"; \
 		exit 1; \
 	fi
 
